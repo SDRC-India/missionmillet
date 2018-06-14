@@ -27,4 +27,7 @@ public interface NGORepository {
  * @return List<NGO>
  */
 	List<NGO> findListOfNewNgos();
+
+
+List<NGO> findByIdNotIn(List<Integer> ngoId);
 }

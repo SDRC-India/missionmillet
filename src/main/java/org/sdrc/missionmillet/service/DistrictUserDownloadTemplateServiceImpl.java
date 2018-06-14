@@ -806,12 +806,7 @@ public class DistrictUserDownloadTemplateServiceImpl implements DistrictUserDown
 		 *              financial data in RawData table.
 		 * 
 		 */
-		// fetching time period id from TimePeriod table
-		SimpleDateFormat dateFormatNew = new SimpleDateFormat("MMM");
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.MONTH, (districtUserUploadSoEModel.getMonth()));
-		TimePeriod timePeriod = timePeriodRepository.getTimePeriod(dateFormatNew.format(cal.getTime()),
-				districtUserUploadSoEModel.getYear());
+		
 		List<RawData> allAutoApprovedData = new ArrayList<RawData>();
 		Map<Integer, String> map = null;
 		try {
@@ -823,7 +818,7 @@ public class DistrictUserDownloadTemplateServiceImpl implements DistrictUserDown
 		                                        + fullDateFormat.format(new Date()),e);
 		}
 
-		allAutoApprovedData.add(getRawDataFromExcel(reportfile.getReportsFile(), ngo, timePeriod, map));
+		allAutoApprovedData.add(getRawDataFromExcel(reportfile.getReportsFile(), ngo, soeReport.getTimePeriod(), map));
 
 		// saving raw data object
 		rawDataRepository.save(allAutoApprovedData);
@@ -1265,16 +1260,10 @@ public class DistrictUserDownloadTemplateServiceImpl implements DistrictUserDown
 										+ fullDateFormat.format(new Date()));
 					}
 
-					// fetching time period id from TimePeriod table
-					SimpleDateFormat dateFormatNew = new SimpleDateFormat("MMM");
-					Calendar cal = Calendar.getInstance();
-					cal.set(Calendar.MONTH, (ngoSeoReports.getMonth()));
-					TimePeriod timePeriod = timePeriodRepository.getTimePeriod(dateFormatNew.format(cal.getTime()),
-							ngoSeoReports.getYear());
 					NGO ngo = new NGO();
 					ngo.setId(ngoSeoReports.getNgo().getId());
 					// Saving approved data in RawData table
-					allAutoApprovedData.add(getRawDataFromExcel(reportfile.getReportsFile(), ngo, timePeriod, map));
+					allAutoApprovedData.add(getRawDataFromExcel(reportfile.getReportsFile(), ngo, ngoSeoReports.getTimePeriod(), map));
 				}
 			}
 			rawDataRepository.save(allAutoApprovedData);
@@ -1320,7 +1309,7 @@ public class DistrictUserDownloadTemplateServiceImpl implements DistrictUserDown
 					colNum = cellNumber;
 			}
 			row = null;
-			row = sheet.getRow(72); // reading the total budget row (starting from 0 in the excel)i.e. 72
+			row = sheet.getRow(72); // reading the total budget row (starting from 0 in the excel) i.e. 72
 
 			// setting all the values in row data object reading values from excel
 			cell = row.getCell(Integer.valueOf((map.get(colNum).split(",")[0])));
@@ -1359,8 +1348,9 @@ public class DistrictUserDownloadTemplateServiceImpl implements DistrictUserDown
 			LOGGER.error("Error description : "
 					+ messageSourceNotification.getMessage("unable.toconvert.workbook", null, null) + " : "
 					+ fullDateFormat.format(new Date()));
+			return null;
 		}
-		return null;
+		
 	}
 
 	/**

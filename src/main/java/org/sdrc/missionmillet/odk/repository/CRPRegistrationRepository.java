@@ -35,4 +35,14 @@ public interface CRPRegistrationRepository {
 
 	List<Object[]> getTrainingChecklist();
 
+	
+
+	/**
+	 * @author subham
+	 * 
+	 */
+	
+	List<Object[]> getComfirmFarmerRegistration();
+
+	List<Object[]> getComfirmTrainingCheckList();
 }

@@ -12,7 +12,7 @@ public interface SpringDataCRPRegistrationRepository extends CRPRegistrationRepo
 	@Override
 	@Query(value="select _URI, _CREATOR_URI_USER, _SUBMISSION_DATE, DEVICEID, DISTRICT, "
 			+ "BLOCK, GRAMPANCHAYAT, VILLAGE, MONITORING_DATE, QS_3 "
-			+ "from crp_registration_05022018_v1_core", nativeQuery=true)
+			+ "from crp_registration_05022018_v1_core where _IS_COMPLETE=false", nativeQuery=true)
 	public List<Object[]> getCRPRegistration();
 	
 	@Override
@@ -24,7 +24,7 @@ public interface SpringDataCRPRegistrationRepository extends CRPRegistrationRepo
 	@Override
 	@Query(value="select _URI, _CREATOR_URI_USER, _SUBMISSION_DATE, DEVICEID, DEMO_DISTRICT,"
 			+ " DEMO_BLOCK, DEMO_GRAMPANCHAYAT, DEMO_VILLAGE, DEMO_MONITORING_DATE, DEMO_FARMER_NAME "
-			+ "from mission33018_v1_core", nativeQuery=true)
+			+ "from mission33018_v1_core where _IS_COMPLETE=false", nativeQuery=true)
 	public List<Object[]> getFarmerRegistration();
 	
 	@Override
@@ -98,5 +98,17 @@ public interface SpringDataCRPRegistrationRepository extends CRPRegistrationRepo
 			+ "Q15_BLOCK, Q15_GRAMPANCHAYAT, Q15_VILLAGE, MONITORING_DATE, COMPONENTS "
 			+ "from training_checklist_26042018_v1_core where _IS_COMPLETE=false", nativeQuery=true)
 	public List<Object[]> getTrainingChecklist();
+	
+	
+	/**
+	 * @author subham
+	 */
+	@Override
+	@Query(value="select DEMO_DISTRICT,DEMO_BLOCK from mission33018_v1_core where _IS_COMPLETE=true", nativeQuery=true)
+	public List<Object[]> getComfirmFarmerRegistration();
+	
+	@Override
+	@Query(value="SELECT Q15_DISTRICT,Q15_BLOCK FROM training_checklist_26042018_v1_core where _IS_COMPLETE=true", nativeQuery=true)
+	public List<Object[]> getComfirmTrainingCheckList();
 	
 }

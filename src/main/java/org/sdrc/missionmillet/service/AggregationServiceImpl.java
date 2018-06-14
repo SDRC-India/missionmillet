@@ -1,6 +1,8 @@
 package org.sdrc.missionmillet.service;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -177,18 +179,24 @@ public class AggregationServiceImpl implements AggregationService {
 		List<ValueObject> listOfNGOPendingStatus = new ArrayList<ValueObject>();
 		List<Object[]> pendingList = ngoSoEUploadsStatusRepository
 				.getPendingStatus(statusId, timePeriod.getStartDate(), timePeriod.getEndDate(), maxReject);
+		LocalDate todayDate = LocalDate.now();
+		boolean flag = false;
 		if (!pendingList.isEmpty()) {
 
 			for (Object[] objects : pendingList) {
-				ValueObject valueObject = new ValueObject();
-				valueObject.setKey(String.valueOf((Integer)objects[0]));
-				valueObject.setShortNmae((String)objects[1]);
-				valueObject.setGroupName(String.valueOf((Integer)objects[2]));
-				valueObject.setDescription((String)objects[3]);
-				
-				listOfNGOPendingStatus.add(valueObject);
+				LocalDate fromDB = ((Timestamp)objects[4]).toLocalDateTime().toLocalDate();
+				if(!todayDate.isAfter(fromDB.plusDays(6))){
+					ValueObject valueObject = new ValueObject();
+					valueObject.setKey(String.valueOf((Integer)objects[0]));
+					valueObject.setShortNmae((String)objects[1]);
+					valueObject.setGroupName(String.valueOf((Integer)objects[2]));
+					valueObject.setDescription((String)objects[3]);
+					
+					listOfNGOPendingStatus.add(valueObject);
+					flag = true;
+				}
 			}
-			return listOfNGOPendingStatus;
+			return  flag == true ? listOfNGOPendingStatus : null;
 		} else {
 			return null;
 		}

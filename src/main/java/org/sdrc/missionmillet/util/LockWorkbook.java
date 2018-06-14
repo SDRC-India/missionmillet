@@ -2,13 +2,17 @@ package org.sdrc.missionmillet.util;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.springframework.stereotype.Component;
 
@@ -255,4 +259,98 @@ public class LockWorkbook {
 	    
 	    return font;
 	}
+	
+	
+	/**
+	 * author subham 
+	 */
+	public static HSSFCellStyle getStyleForOddColumn(HSSFWorkbook workbook) {
+		
+		HSSFCellStyle styleForOddColumn = workbook.createCellStyle();
+		styleForOddColumn.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		styleForOddColumn.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		styleForOddColumn.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		styleForOddColumn.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		styleForOddColumn.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		styleForOddColumn.setVerticalAlignment(HSSFCellStyle.ALIGN_FILL);
+		HSSFColor lightGray =  setColor(workbook,(byte) 229, (byte)230,(byte) 232);
+		styleForOddColumn.setFillForegroundColor(lightGray.getIndex());
+		styleForOddColumn.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		styleForOddColumn.setWrapText(true);
+		return styleForOddColumn;
+	}
+
+	public static HSSFCellStyle getStyleForEvenColumn(HSSFWorkbook workbook) {
+	
+		HSSFCellStyle styleForEvenColumn = workbook.createCellStyle();
+		styleForEvenColumn.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		styleForEvenColumn.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		styleForEvenColumn.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		styleForEvenColumn.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		styleForEvenColumn.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		styleForEvenColumn.setVerticalAlignment(HSSFCellStyle.ALIGN_FILL);
+		styleForEvenColumn.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+		styleForEvenColumn.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		
+		return styleForEvenColumn;
+	}
+	
+	
+	private  static HSSFColor setColor(HSSFWorkbook workbook, byte r,byte g, byte b){
+	    HSSFPalette palette = workbook.getCustomPalette();
+	    HSSFColor hssfColor = null;
+	        hssfColor= palette.findColor(r, g, b); 
+	        if (hssfColor == null ){
+	            palette.setColorAtIndex(HSSFColor.LAVENDER.index, r, g,b);
+	            hssfColor = palette.getColor(HSSFColor.LAVENDER.index);
+	        }
+	    return hssfColor;
+	}
+	
+	
+public static CellStyle getStyleForHeader(Workbook workbook) {
+		
+		CellStyle styleForHeader = workbook.createCellStyle();
+		styleForHeader.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		styleForHeader.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		styleForHeader.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		styleForHeader.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		styleForHeader.setFillForegroundColor(HSSFColor.GREY_40_PERCENT.index);
+		styleForHeader.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+		styleForHeader.setVerticalAlignment(HSSFCellStyle.ALIGN_FILL);
+		styleForHeader.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		styleForHeader.setFont(getFontForHeader(workbook));
+		
+		return styleForHeader;
+	}
+	
+
+/**
+ * @Description  This method merge column and sets border and color
+ * @param rowIndex
+ * @param columnIndex
+ * @param rowSpan
+ * @param columnSpan
+ * @param sheet
+ * @return
+ */
+public HSSFSheet doMerge(int rowIndex, int columnIndex, int rowSpan, int columnSpan, HSSFSheet sheet) {
+	
+	Cell cell = sheet.getRow(rowIndex).getCell(rowSpan);
+    CellRangeAddress range = new CellRangeAddress(rowIndex, columnIndex,rowSpan,columnSpan);
+
+    sheet.addMergedRegion(range);
+
+    RegionUtil.setBorderBottom(cell.getCellStyle().getBorderBottom(), range, sheet, sheet.getWorkbook());
+    RegionUtil.setBorderTop(cell.getCellStyle().getBorderTop(), range, sheet, sheet.getWorkbook());
+    RegionUtil.setBorderLeft(cell.getCellStyle().getBorderLeft(), range, sheet, sheet.getWorkbook());
+    RegionUtil.setBorderRight(cell.getCellStyle().getBorderRight(), range, sheet, sheet.getWorkbook());
+
+    RegionUtil.setBottomBorderColor(cell.getCellStyle().getBottomBorderColor(), range, sheet, sheet.getWorkbook());
+    RegionUtil.setTopBorderColor(cell.getCellStyle().getTopBorderColor(), range, sheet, sheet.getWorkbook());
+    RegionUtil.setLeftBorderColor(cell.getCellStyle().getLeftBorderColor(), range, sheet, sheet.getWorkbook());
+    RegionUtil.setRightBorderColor(cell.getCellStyle().getRightBorderColor(), range, sheet, sheet.getWorkbook());
+    
+    return sheet;
+}
 }

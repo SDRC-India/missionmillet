@@ -88,7 +88,7 @@
 		entity-manager-factory-ref="odkEntityManagerFactory"
 		transaction-manager-ref="odkTransactionManager" />
 
-	<bean id="odkEntityManagerFactory"
+	<bean id="odkEntityManagerFactory" name="odkEntityManagerFactory"
 		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
 		p:dataSource-ref="odkDataSource">
 		<property name="jpaVendorAdapter">

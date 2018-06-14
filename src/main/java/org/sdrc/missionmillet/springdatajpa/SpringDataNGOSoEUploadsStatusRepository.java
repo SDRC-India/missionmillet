@@ -42,7 +42,7 @@ public interface SpringDataNGOSoEUploadsStatusRepository
 	public NGOSoEUploadsStatus getTimePeriodByNGOMonthAndYear(@Param("ngoId") int ngoId, @Param("month") int month,
 			@Param("year") int year);
 
-	@Query(value = "select a.area_id_pk, a.area_name, ng.ngo_id_pk, ng.name "
+	@Query(value = "select a.area_id_pk, a.area_name, ng.ngo_id_pk, ng.name, soe.deadline_date "
 			+ "from ngo_soe_upload_status soe, mst_area a, mst_ngo ng "
 			+ "where soe.status_id_fk in (:statusId) and soe.created_date >= :startDate "
 			+ "and soe.created_date <= :endDate "

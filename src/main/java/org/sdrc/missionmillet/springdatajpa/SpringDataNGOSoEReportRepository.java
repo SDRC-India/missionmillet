@@ -47,7 +47,7 @@ public interface SpringDataNGOSoEReportRepository extends NGOSoEReportRepository
 	@Override
 	@Query("select nr from NGOSoEReport nr,NGOSoEUploadsStatus status where nr.nGOSoEUploadsStatus.ngoSoEUploadsStatusId = "
 			+ "status.ngoSoEUploadsStatusId and nr.collectUser.userId=:userId and nr.ngo.id=:ngoId and nr.createdDate >= "
-			+ ":startDate and nr.createdDate <= :endDate and status.status.typeDetailId in (:list) order by nr.month,nr.year")
+			+ ":startDate and nr.createdDate <= :endDate and status.status.typeDetailId in (:list) order by nr.month,nr.year,nr.createdDate")
 	public List<NGOSoEReport> getDataFile(@Param("userId") int userId, @Param("ngoId") int ngoId,
 			@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate,
 			@Param("list") List<Integer> list);

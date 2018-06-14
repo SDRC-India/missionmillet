@@ -12,6 +12,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -23,6 +25,7 @@ import org.sdrc.missionmillet.domain.CollectUser;
 import org.sdrc.missionmillet.domain.TypeDetails;
 import org.sdrc.missionmillet.model.Mail;
 import org.sdrc.missionmillet.odk.repository.CRPRegistrationRepository;
+import org.sdrc.missionmillet.odk.springdatajparepository.BaseCRPRegistrationRepository;
 import org.sdrc.missionmillet.repository.AreaRepository;
 import org.sdrc.missionmillet.repository.CollectUserRepository;
 import org.sdrc.missionmillet.repository.TypeDetailsRepository;
@@ -62,6 +65,12 @@ public class ODKFormServiceImpl implements ODKFormService{
 	
 	@Autowired
 	private ResourceBundleMessageSource messageSourceNotification;
+	
+	@Autowired
+	private BaseCRPRegistrationRepository baseCRPRegistrationRepository;
+	
+	@Autowired
+	private LockWorkbook lockWorkbook;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger("LOGGER");
 	private SimpleDateFormat timestampFormat = new SimpleDateFormat("ddMMyyyyHHmmssSSSSS");
@@ -752,4 +761,272 @@ public class ODKFormServiceImpl implements ODKFormService{
 		}
 		return workbook;
 	}
+	
+	
+	/**
+	 *This method excutes on Every Monday at 11:00am,
+	 * it calculates no. of complete submission in a week, district and block wise
+	 * 
+	 * @author Subham Ashish (subham@sdrc.co.in)
+	 * 
+	 */
+	@Override
+	@Transactional
+	@Scheduled(cron="0 0 11 ? * MON")
+	public void CompleteformSubmissionStatus() {
+		
+		try{
+			
+				List<Object[]> areaList = areaRepository.getArea();
+				
+				Map<String, String> areaMap = new HashMap<String, String>();
+				
+				/**
+				 * Workbook and sheet creation
+				 */
+				HSSFWorkbook workbook = new HSSFWorkbook();
+				HSSFSheet sheet = workbook.createSheet("completion_records");
+				areaList.forEach(area->areaMap.put(String.valueOf(area[0]), String.valueOf(area[1])));
+				Map<String,Integer> map = new HashMap<>();
+				
+				Row row;
+				Cell cell;
+				
+				//get styles  here
+				 HSSFCellStyle styleForEvenColumn = LockWorkbook.getStyleForEvenColumn(workbook);
+				 HSSFCellStyle styleForOddColumn = LockWorkbook.getStyleForOddColumn(workbook);
+				 
+				row = sheet.createRow(0);
+				row.setHeight( (short) 0x180);
+				cell=row.createCell(0);
+				cell.setCellStyle(LockWorkbook.getStyleForHeader(workbook));
+				sheet=lockWorkbook.doMerge(0,0,0,3,sheet);
+				sheet.setColumnWidth(cell.getColumnIndex(), 3500);
+				cell.setCellValue("Mision Millet complete form submission Report");
+				
+				row = sheet.createRow(1);
+				row.setHeight( (short) 0x180);
+				cell = row.createCell(0);
+				cell.setCellStyle(LockWorkbook.getStyleForHeader(workbook));
+				sheet= lockWorkbook.doMerge(1,1,0,3,sheet);
+				sheet.setColumnWidth(cell.getColumnIndex(), 3500);
+				cell.setCellValue("Date of Report Generation"+" : "+new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+				
+				String fixedHederValue[]={"Form Name","District","Block","Total Number of submissions"};
+			
+				row = sheet.createRow(2);
+				for(int index=0;index<fixedHederValue.length;index++){
+					cell = row.createCell(index);
+					sheet.setHorizontallyCenter(true);
+					cell.setCellStyle(LockWorkbook.getStyleForHeader(workbook));
+					sheet.setColumnWidth(cell.getColumnIndex(), 4000);
+					cell.setCellValue(fixedHederValue[index]);
+				}
+				
+				//table name
+				String tableName[] = messageSourceNotification.getMessage("odk.table.name", null,null).split(",");
+				//formname
+				String formName[] = messageSourceNotification.getMessage("odk.form.name", null,null).split(",");
+				
+				int rowIndex=3;
+				for(int i = 0;i<tableName.length;i++){
+					List<Object[]> crpRegistrationList;
+					crpRegistrationList = baseCRPRegistrationRepository.findAllRecords(tableName[i]);
+					rowIndex = processData(crpRegistrationList,map,workbook,formName[i],areaMap,row,cell,rowIndex,sheet,styleForEvenColumn,styleForOddColumn);
+				}
+				
+				//Rest 2 tables column name is not same.
+				
+				/**
+				 * form name:Training Checklist
+				 * 
+				 */
+				List<Object[]> crpRegistrationList;
+				map=new HashMap<>();
+				String name = "Training Checklist";
+				crpRegistrationList = crpRegistrationRepository.getComfirmTrainingCheckList();
+				rowIndex= processData(crpRegistrationList,map,workbook,name,areaMap,row,cell,rowIndex,sheet,styleForEvenColumn,styleForOddColumn);
+				
+				/**
+				 * form name:Farmer Registration
+				 */
+				map=new HashMap<>();
+				name = "Farmer Registration";
+				crpRegistrationList = crpRegistrationRepository.getComfirmFarmerRegistration();
+				rowIndex = processData(crpRegistrationList,map,workbook,name,areaMap,row,cell,rowIndex,sheet,styleForEvenColumn,styleForOddColumn);
+				
+				
+				
+				String path = messageSourceNotification.getMessage("wassan.upload.report.path", null, null);
+				String fileName = "missionmilletCompleteFS"+new SimpleDateFormat("ddMMyyyyHHmmss").format(new Date())+".xls";
+				String finalPath = path+fileName;
+				FileOutputStream fos = new FileOutputStream(new File(finalPath));
+				workbook.write(fos);
+				fos.close();
+				workbook.close();
+				
+				/**
+				 * drafting mail
+				 * Putting file name and path in a map to be attached
+				 */
+				Map<String,String>attachmentMap = new HashMap<>();
+				attachmentMap.put(fileName, path);
+				//again read the same file  and attached to mail
+				String subject = messageSourceNotification.getMessage("weekly.report.mail.subject", null, null)+" "+dateFormat.format(new Date());
+				Mail mail = sendMailMessage(messageSourceNotification.getMessage("weekly.report.mail.body", null, null),attachmentMap,subject);
+				//sending mail
+				mailService.sendMail(mail);
+				//deleting path
+				new File(finalPath).delete();
+				
+				}catch(Exception e){
+					LOGGER.error(messageSourceNotification.getMessage("error.while.sending.mail", null, null)+" : "+timestampFormat.format(new Date())+e);
+					throw new RuntimeException();
+				}
+	}
+	
+	
+	/**
+	 * Setting all the mail body here
+	 * @param message
+	 * @param month
+	 * @param attachmentMap
+	 * @return mail object
+	 */
+	public Mail sendMailMessage(String message, Map<String, String> attachmentMap,String subject) {
+		
+		Mail mail = new Mail();
+		mail.setSubject(subject);
+		mail.setToUserName("Admin");
+		mail.setFromUserName(messageSourceNotification.getMessage("incomplete.mail.from.user", null, null));
+		mail.setMessage(message);
+		mail.setToEmailIds(Arrays.asList(messageSourceNotification.getMessage("ngo.soe.report.mail.tomailid", null,null)));
+		mail.setAttachments(attachmentMap);
+		mail.setRegards(null);
+		return mail;
+	}
+	/**
+	 * @param crpRegistrationList
+	 * @param map
+	 * @param workbook
+	 * @param name
+	 * @param areaMap
+	 * @param row
+	 * @param cell
+	 * @param rowIndex
+	 * @param sheet
+	 * @param styleForOddColumn 
+	 * @param styleForEvenColumn 
+	 * @return rowIndex
+	 */
+	private int processData(List<Object[]> crpRegistrationList, Map<String, Integer> map, HSSFWorkbook workbook,
+			String name, Map<String, String> areaMap, Row row, Cell cell, int rowIndex, HSSFSheet sheet, 
+			HSSFCellStyle styleForEvenColumn, HSSFCellStyle styleForOddColumn) {
+		
+		if(!crpRegistrationList.isEmpty()){
+			//making district_block name as key and putting a counter as a value to count it occurrence
+			map = mapObject(crpRegistrationList,map);
+			
+			//writing records in excel
+			rowIndex = writeCellValue(map,workbook,name,areaMap,row,cell,rowIndex,sheet,styleForEvenColumn,styleForOddColumn);
+			
+		}
+		return rowIndex;
+	}
+
+	/**
+	 * It writes all the value in excel cell.
+	 * @param map
+	 * @param workbook
+	 * @param formName
+	 * @param areaMap
+	 * @param row
+	 * @param cell
+	 * @param rowIndex
+	 * @param sheet
+	 * @return rowIndex value
+	 */
+	
+	Integer checkValue = 1 ;
+	Integer mergeCellSize=0;
+	Boolean valueWrite = true;
+	private int writeCellValue(Map<String, Integer> map, HSSFWorkbook workbook, String formName,
+			Map<String, String> areaMap, Row row, Cell cell, int rowIndex, HSSFSheet sheet, HSSFCellStyle styleForEvenColumn, HSSFCellStyle styleForOddColumn) {
+		
+		final Integer size = rowIndex;
+		
+		for(Map.Entry<String,Integer> entry: map.entrySet()){
+			
+			++mergeCellSize;
+			row = sheet.createRow(rowIndex);
+			row.setHeight( (short) 0x140);
+			
+			String[] value = entry.getKey().split("_");
+			
+			//form name
+			cell = row.createCell(0);
+			//write value only once
+			if(valueWrite){
+				cell.setCellValue(formName);
+			}
+			
+			sheet.setColumnWidth(cell.getColumnIndex(), 8500);
+			cell.setCellStyle(checkValue%2==0?styleForEvenColumn:styleForOddColumn);
+			
+			//district name
+			cell = row.createCell(1);
+			cell.setCellStyle(checkValue%2==0?styleForEvenColumn:styleForOddColumn);
+			cell.setCellValue(areaMap.get(value[0]));
+			
+			
+			//BlockName
+			cell = row.createCell(2);
+			cell.setCellStyle(checkValue%2==0?styleForEvenColumn:styleForOddColumn);
+			cell.setCellValue(areaMap.get(value[1]));
+			
+			//form count
+			cell = row.createCell(3);
+			cell.setCellStyle(checkValue%2==0?styleForEvenColumn:styleForOddColumn);
+			cell.setCellValue(map.get(value[0]+"_"+value[1]));
+			
+			//excute only once to merge row
+			if(map.size()==mergeCellSize){
+				if(size<size+mergeCellSize-1)
+					lockWorkbook.doMerge(size, size+mergeCellSize-1, 0, 0,sheet);
+			}
+			
+			rowIndex++;
+			valueWrite=false;
+		}
+		checkValue++;
+		mergeCellSize=0;
+		valueWrite = true;
+		return rowIndex;
+		
+	}
+
+	/**
+	 * It iterates crpRegistrationList of data and make district_block id as a key to count number of inserted records
+	 * @param crpRegistrationList
+	 * @param map
+	 * @return
+	 */
+	private Map<String,Integer> mapObject(List<Object[]> crpRegistrationList, Map<String, Integer> map) {
+		
+			map= new HashMap<>();
+			
+			for(Object[] crpList : crpRegistrationList){
+			
+				if(crpList[0]!=null){
+					if(map.get(crpList[0]+"_"+crpList[1])==null)
+						map.put(crpList[0]+"_"+crpList[1], 1);
+					else{
+						map.put(crpList[0]+"_"+crpList[1],map.get(crpList[0]+"_"+crpList[1]) + 1);
+					}
+				}
+				
+		}
+		return map;
+	}
+
 }

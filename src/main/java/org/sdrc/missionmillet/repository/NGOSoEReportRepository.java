@@ -131,4 +131,6 @@ public interface NGOSoEReportRepository {
 
 	List<NGOSoEReport> findAll();
 
+	List<NGOSoEReport> findByMonthAndYearAndIsLiveTrue(int month, int year);
+
 }
