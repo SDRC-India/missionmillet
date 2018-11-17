@@ -220,8 +220,8 @@ function ngoSoEController($scope, $http, $log, $filter, $window) {
 							}else if (response.data == "macro not enable") {
 								$scope.validationMsg = "Please click on enable content button of excel sheet and upload again.";
 								$("#errorMessage").modal("show");
-							}else if(response.data == "The total budget doesn't match the value defined in April."){
-								$scope.validationMsg = "The total budget doesn't match the value defined in April.";
+							}else if(response.data == "The total budget can't be less than the budget define in April."){
+								$scope.validationMsg = "The total budget can't be less than the budget define in April.";
 								$("#errorMessage").modal("show");
 							}else {
 								$scope.validationMsg = "Please upload correct file.";

@@ -54,16 +54,16 @@ public class AuthenticateServiceImpl implements AuthenticateService {
 			String username, String password) {
 
 		// the user is present in the database or not. if present, live or not
-		CollectUser user = collectUserRepository.findByUsernameAndPassword(
-				username, password);
+		CollectUser user = collectUserRepository.findByUsernameAndPassword(username, password);
 		if (user != null) {
 
 			// this variable will return
 			List<ProgramXFormsModel> programWithXFormsList = new ArrayList<ProgramXFormsModel>();
 
 			// fetching user-program-xForm mappings
-			for (User_Program_XForm_Mapping user_Program_XForm_Mapping : user_Program_XForm_MappingRepository
-					.findByUser(username)) {
+			List<User_Program_XForm_Mapping> listOfUserProgramXFormMapping 
+							= user_Program_XForm_MappingRepository.findByUser(username);
+			for (User_Program_XForm_Mapping user_Program_XForm_Mapping : listOfUserProgramXFormMapping) {
 
 				List<XFormModel> xFormModels = new ArrayList<XFormModel>();
 
@@ -166,13 +166,18 @@ public class AuthenticateServiceImpl implements AuthenticateService {
 	public ModelToCollectApplication getModelToCollectApplication(
 			List<FormsToDownloadMediafiles> list,String username,String password) {
 		ModelToCollectApplication modelToCollectApplication = new ModelToCollectApplication();
-		if(getProgramWithXFormsList(username,password)!=null){
-			modelToCollectApplication.setProgramXFormModelList(getProgramWithXFormsList(username,password));
+		
+		List<ProgramXFormsModel> programXFormModelList = getProgramWithXFormsList(username,password);
+		if(programXFormModelList!=null && !programXFormModelList.isEmpty()){
+			modelToCollectApplication.setProgramXFormModelList(programXFormModelList);
 		}else{
 			return null;
 		}
-		if(getMediaFilesToUpdate(list)!=null){
-			modelToCollectApplication.setListOfMediaFilesToUpdate(getMediaFilesToUpdate(list));
+		
+		List<MediaFilesToUpdate> listOfMediaFilesToUpdate = getMediaFilesToUpdate(list);
+		
+		if(listOfMediaFilesToUpdate !=null && !listOfMediaFilesToUpdate.isEmpty()){
+			modelToCollectApplication.setListOfMediaFilesToUpdate(listOfMediaFilesToUpdate);
 		}else{
 			return null;
 		}

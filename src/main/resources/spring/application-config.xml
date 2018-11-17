@@ -76,11 +76,21 @@
 	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
 		p:entityManagerFactory-ref="entityManagerFactory" />
 
-	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	<!-- <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="${jdbc.web.driverClassName}" />
 		<property name="url" value="${jdbc.web.url}" />
 		<property name="username" value="${jdbc.web.username}" />
 		<property name="password" value="${jdbc.web.password}" />
+	</bean> -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${jdbc.web.driverClassName}" />
+		<property name="jdbcUrl" value="${jdbc.web.url}" />
+		<property name="user" value="${jdbc.web.username}" />
+		<property name="password" value="${jdbc.web.password}" />
+		<property name="maxPoolSize" value="30" />
+		<property name="minPoolSize" value="10" />
+		<property name="testConnectionOnCheckout" value="true" />
 	</bean>
 	
 <!-- ======================MySql Database configuration============ -->

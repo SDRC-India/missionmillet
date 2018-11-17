@@ -51,6 +51,7 @@ import org.sdrc.missionmillet.model.CollectUserModel;
 import org.sdrc.missionmillet.model.DistrictUserNgoListModel;
 import org.sdrc.missionmillet.model.DistrictUserUploadSoEModel;
 import org.sdrc.missionmillet.repository.AreaRepository;
+import org.sdrc.missionmillet.repository.CollectUserRepository;
 import org.sdrc.missionmillet.repository.NGORepository;
 import org.sdrc.missionmillet.repository.NGOSoEReportRepository;
 import org.sdrc.missionmillet.repository.NGOSoEUploadsStatusRepository;
@@ -113,6 +114,9 @@ public class DistrictUserDownloadTemplateServiceImpl implements DistrictUserDown
 	private UUIdGeneratorRepository uuIdGeneratorRepository;
 	@Autowired
 	private SoETransactionRepository soETransactionRepository;
+	
+	@Autowired
+	private CollectUserRepository collectUserRepository;
 
 	private SimpleDateFormat yearFromat = new SimpleDateFormat("YYYY");
 	private SimpleDateFormat monthFromat = new SimpleDateFormat("MM");
@@ -467,9 +471,11 @@ public class DistrictUserDownloadTemplateServiceImpl implements DistrictUserDown
 			Cell uuidCell = uuidRow.createCell(0);
 			String uuid = UUID.randomUUID().toString();
 			uuidCell.setCellValue(uuid);
+			
+			CollectUser user = collectUserRepository.getNgo(ngoId); 
 
 			UUIdGenerator uuidGenerator = new UUIdGenerator();
-			uuidGenerator.setCollectUser(new CollectUser(ngoId));
+			uuidGenerator.setCollectUser(user);
 			uuidGenerator.setCreatedDate(new Timestamp(new Date().getTime()));
 			uuidGenerator.setMonth(Integer.parseInt(monthFromat.format(new java.util.Date())));
 			uuidGenerator.setUuid(uuid);

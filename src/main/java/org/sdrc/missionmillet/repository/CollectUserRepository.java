@@ -25,4 +25,6 @@ public interface CollectUserRepository {
 
 	List<CollectUser> findByNgoIn(List<NGO> ngoList);
 
+	CollectUser getNgo(Integer ngoId);
+
 }

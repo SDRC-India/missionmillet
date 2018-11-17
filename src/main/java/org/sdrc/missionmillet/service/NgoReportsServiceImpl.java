@@ -1459,8 +1459,10 @@ public class NgoReportsServiceImpl implements NgoReportsService {
 		int noActionTaken = Integer.valueOf(messageSourceNotification.getMessage("typedetails.no.action.taken", null, null));
 		int reUpload = Integer.valueOf(messageSourceNotification.getMessage("typedetails.re.upload", null, null));
 		
+//		List<Object[]> soeSubmitted =  ngoSoEReportRepository.viewSoeDetails
+//				(Arrays.asList(approved,autoApproved,rejected,noActionTaken,reUpload), ngoId, new Timestamp(new Date().getTime()),reUpload);
 		List<Object[]> soeSubmitted =  ngoSoEReportRepository.viewSoeDetails
-				(Arrays.asList(approved,autoApproved,rejected,noActionTaken,reUpload), ngoId, new Timestamp(new Date().getTime()),reUpload);
+				(Arrays.asList(approved,autoApproved), ngoId, new Timestamp(new Date().getTime()),reUpload);
 		
 		// Getting style sheet for unlocking
 		HSSFCellStyle styleForUnLocking = LockWorkbook.getStyleForUnLocking(workbook);

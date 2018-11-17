@@ -18,6 +18,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.sdrc.missionmillet.domain.CollectUser;
 import org.sdrc.missionmillet.domain.Configuration;
 import org.sdrc.missionmillet.domain.NGO;
 import org.sdrc.missionmillet.domain.NGOSoEUploadsStatus;
@@ -27,6 +28,7 @@ import org.sdrc.missionmillet.domain.TimePeriod;
 import org.sdrc.missionmillet.domain.TypeDetails;
 import org.sdrc.missionmillet.domain.UUIdGenerator;
 import org.sdrc.missionmillet.model.CollectUserModel;
+import org.sdrc.missionmillet.repository.CollectUserRepository;
 import org.sdrc.missionmillet.repository.ConfigurationRepository;
 import org.sdrc.missionmillet.repository.NGOSoEUploadsStatusRepository;
 import org.sdrc.missionmillet.repository.SoETemplateRepository;
@@ -73,7 +75,8 @@ public class DistrictUserTemplateServiceImpl implements DistrictUserTemplateServ
 	@Autowired
 	DistrictUserDownloadTemplateService districtUserDownloadTemplateService;
 	
-	
+	@Autowired
+	private CollectUserRepository collectUserRepository;
 
 	private SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -174,7 +177,10 @@ public class DistrictUserTemplateServiceImpl implements DistrictUserTemplateServ
 						null, null);
 				TimePeriod latestTimePeriod = timePeriodRepository.getTimePeriodofSixPeriodicity(halfyearlyPeriodicity,
 						new Timestamp(new Date().getTime()));
-				UUIdGenerator uuIdGenerator = uuIdGeneratorRepository.getUUIDdetailsForDistrict(ngoId,
+				
+				CollectUser user = collectUserRepository.getNgo(ngoId); 
+				
+				UUIdGenerator uuIdGenerator = uuIdGeneratorRepository.getUUIDdetailsForDistrict(user.getUserId(),
 						sheetUUIDBiannual, latestTimePeriod.getTimePeriodId());
 				if(uuIdGenerator == null){
 					workbook.close();
@@ -319,7 +325,7 @@ public class DistrictUserTemplateServiceImpl implements DistrictUserTemplateServ
 			}
 			Row budgetRow = sheet.getRow(72);
 			Cell budgetCell  = budgetRow.getCell(6);
-			if((budgetCell.getNumericCellValue() == budget.getNumericCellValue()) || (budgetCell.getNumericCellValue() == 0.0)){
+			if((budgetCell.getNumericCellValue() <= budget.getNumericCellValue()) || (budgetCell.getNumericCellValue() == 0.0)){
 				flag = true;
 			}else if(count(ngoId)==0){
 				flag = true;

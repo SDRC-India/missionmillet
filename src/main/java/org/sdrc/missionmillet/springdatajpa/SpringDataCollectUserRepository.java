@@ -18,5 +18,9 @@ public interface SpringDataCollectUserRepository extends CollectUserRepository,R
 	@Query(value="select ur.* from mst_collect_user usr, mst_collect_user ur where usr.user_id_pk = ur.parent_id "
 			+ "and ur.parent_id=:userId and ur.is_live = true order by ur.name", nativeQuery=true)
 	public List<CollectUser> getUsersList(@Param("userId")Integer userId);
+	
+	@Override
+	@Query(value="select cu.* from mst_collect_user cu where cu.ngo_id_fk=:ngoId", nativeQuery=true)
+	public CollectUser getNgo(@Param("ngoId")Integer ngoId);
 
 }
