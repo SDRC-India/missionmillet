@@ -104,7 +104,7 @@
 		<poi.version>3.14</poi.version>
 
 		<!-- Apache commons Upload -->
-		<commons-fileupload.version>1.2.2</commons-fileupload.version>
+		<commons-fileupload.version>1.3.3</commons-fileupload.version>
 		<commons-io.version>1.3.2</commons-io.version>
 		<commons-codec.version>1.8</commons-codec.version>
 
