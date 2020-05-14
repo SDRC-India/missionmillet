@@ -1,0 +1,166 @@
+@charset "utf-8";
+/* CSS Document */
+
+@import url( 'http://fonts.googleapis.com/css?family=Cabin+Condensed:400,700|Noticia+Text:400,400italic,700,700italic&subset=latin,latin-ext' );
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  src: local('Open Sans'), local('OpenSans'), url(http://themes.googleusercontent.com/static/fonts/opensans/v8/cJZKeOuBrn4kERxqtaUH3T8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+}
+
+/***** nav menu CSS Starts *******/
+
+.navbar-nav > li > a {
+    padding-top: 0;
+    padding-bottom: 0;
+    color: #fff;
+}
+.mainmenu {
+    background-color: transparent;
+    border-color: transparent;
+    margin-bottom: 0;
+	border: 0px !important;
+}
+.navbar-nav > li:last-child > a {
+    padding-right: 0px;
+    margin-right: 0px;
+}
+.dropdown-menu {
+    padding: 0px 0; 
+    margin: 0 0 0; 
+/*     border: 0px solid transition !important; */
+/* 	border: 0px solid rgba(0,0,0,.15);	 */
+	border-radius: 0px;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+
+}
+.float-right
+{
+	float: right;
+}
+/*=-====Main Menu=====*/
+.navbar-nav .open .dropdown-menu > li > a {
+    padding: 8px 15px 16px 25px;
+	color: #fff;
+}
+.header_bottom { background: #fff;  box-shadow: 0 4px 6px -2px #9E9E9E; }
+.header_area .header_bottom .mainmenu a {
+    color: #fff;
+    font-size: 14px;
+    text-transform: capitalize;
+    padding: 15px;
+	font-family: 'Roboto', sans-serif;
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: #000 !important;
+    font-size: 14px;
+    text-transform: capitalize;
+    padding: 15px;
+	font-family: 'Roboto', sans-serif;
+}
+
+
+
+.header_area .mainmenu .active a,
+.header_area .mainmenu .active a:focus,
+.header_area .mainmenu .active a:hover,
+.header_area .mainmenu li a:hover,
+.header_area .mainmenu li a:focus ,
+.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover{
+    color: #0071ba;
+    background: #fff;
+    outline: 0;
+}
+.navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle {
+    background-color: #31859d;
+}
+.navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
+    background-color: #31859d;
+}
+/*-----./ Main Menu-----*/
+
+.navbar-default .navbar-toggle { border-color: #fff } /*Toggle Button*/
+.navbar-default .navbar-toggle .icon-bar { background-color: #fff } /*Toggle Button*/
+
+/*==========Sub Menu=v==========*/
+.mainmenu .collapse ul > li:hover > a{background: #31859d; color: #fff;}
+.mainmenu .collapse ul ul > li:hover > a, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus, .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover
+{background: #fff; color:#000;}
+.mainmenu .collapse ul ul ul > li:hover > a{background: #fff;  color: #31859d;}
+
+.mainmenu .collapse ul ul, .mainmenu .collapse ul ul.dropdown-menu{background:#31859d !important; color: #fff;}
+.mainmenu .collapse ul ul ul, .mainmenu .collapse ul ul ul.dropdown-menu{background:#31859d;}
+.mainmenu .collapse ul ul ul ul, .mainmenu .collapse ul ul ul ul.dropdown-menu{ background: #31859d;}
+
+/******************************Drop-down menu work on hover**********************************/
+.mainmenu{background: none; border: 0px solid #333; margin: 0; padding: 0; min-height:20px}
+@media only screen and (min-width: 767px) {
+	
+.mainmenu .collapse ul li{position:relative;}
+.mainmenu .collapse ul li:hover> ul{display:block;}
+.mainmenu .collapse ul ul{position:absolute;top:100%;left:0;min-width:250px;display:none}
+/*******/
+.mainmenu .collapse ul ul li{position:relative}
+.mainmenu .collapse ul ul li:hover> ul{display:block;}
+.mainmenu .collapse ul ul ul{position:absolute;top:0;left:100%;min-width:250px;display:none}
+/*******/
+.mainmenu .collapse ul ul ul li{position:relative; }
+.mainmenu .collapse ul ul ul li:hover ul{display:block;border: 1px solid #fff;}
+.mainmenu .collapse ul ul ul ul{position:absolute;top:0;left:100%;min-width:250px;display:none;z-index:1; }
+
+}
+
+
+.header-info
+{
+	text-decoration: none;
+	margin: 16px;
+	color:#31859d;
+}
+
+
+
+
+.mainmenu .collapse ul ul.dropdown-district
+{
+	left: -100%; 
+	right: 100% !important;
+}
+
+.menu-list
+{
+    padding: 5px;
+}
+/***** nav menu CSS Ends *******/
+
+
+
+
+/***** media query *****/
+
+@media ( max-width : 992px)
+ {
+   .float-left
+   {
+   	float: left !important;
+   }
+}
+
+@media ( max-width : 767px)
+ {
+   .float-right
+   {
+   	float: left !important;
+   }
+   .mainmenu .collapse ul ul ul, .mainmenu .collapse ul ul ul.bgClr-inTablt
+   {
+   background:#fff !important; color: #31859d !important;
+   }
+   
+   .mainmenu .collapse ul ul ul, .mainmenu .collapse ul ul ul.dropdown-menu{background:#fff !important; color: #31859d !important;}
+   .mainmenu .collapse ul ul ul > li > a{background: #fff !important;  color: #000 !important;}
+   .mainmenu .collapse ul ul ul > li:hover > a{background: #fff !important;  color: #000 !important;}
+}

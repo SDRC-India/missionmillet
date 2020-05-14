@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		 http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd">
+
+
+	<context:property-placeholder location="classpath:spring/app.properties" system-properties-mode="OVERRIDE" />
+
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<mvc:annotation-driven />
+	
+	<task:annotation-driven/>
+	
+	<!-- enables scanning for @Transactional annotations -->
+	<tx:annotation-driven />
+	
+	<!-- Uncomment and add your base-package here: <context:component-scan base-package="org.springframework.samples.service"/> -->
+	<!-- ===============Specify base packages==================== -->
+	<context:component-scan base-package="org.sdrc.missionmillet.controller" />
+	<context:component-scan base-package="org.sdrc.missionmillet.service" />
+	<context:component-scan base-package="org.sdrc.missionmillet.repository" />
+	<context:component-scan base-package="org.sdrc.missionmillet.springdatajpa" />
+	<context:component-scan base-package="org.sdrc.missionmillet.util" />
+	<context:component-scan base-package="org.sdrc.missionmillet.core" />
+	<context:component-scan base-package="org.sdrc.missionmillet.odk.domain" />
+	<context:component-scan base-package="org.springframework.data.repository.Repository" />
+	<context:component-scan base-package="org.sdrc.missionmillet.odk.repository.CRPRegistrationRepository" />
+	
+
+	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+	
+	<!--  ====================Database configuration==================== -->
+	<jpa:repositories base-package="org.sdrc.missionmillet.springdatajpa"
+		entity-manager-factory-ref="entityManagerFactory"
+		transaction-manager-ref="transactionManager" />
+	
+	<bean id="entityManagerFactory"	class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		p:dataSource-ref="dataSource">
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+				p:database="${jpa.database.web}" p:showSql="${jpa.showSql}" />
+		</property>
+		<property name="jpaPropertyMap">
+			<map>
+				<entry key="hibernate.dialect" value="${hibernate.dialect.web}" />
+				<entry key="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto.web}" />
+				<entry key="hibernate.show_sql" value="${hibernate.show_sql.web}" />
+			</map>
+		</property>
+
+		<property name="packagesToScan">
+			<list>
+				<value>org.sdrc.missionmillet.domain</value>
+			</list>
+		</property>
+		
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
+		p:entityManagerFactory-ref="entityManagerFactory" />
+
+	<!-- <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${jdbc.web.driverClassName}" />
+		<property name="url" value="${jdbc.web.url}" />
+		<property name="username" value="${jdbc.web.username}" />
+		<property name="password" value="${jdbc.web.password}" />
+	</bean> -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${jdbc.web.driverClassName}" />
+		<property name="jdbcUrl" value="${jdbc.web.url}" />
+		<property name="user" value="${jdbc.web.username}" />
+		<property name="password" value="${jdbc.web.password}" />
+		<property name="maxPoolSize" value="30" />
+		<property name="minPoolSize" value="10" />
+		<property name="testConnectionOnCheckout" value="true" />
+	</bean>
+	
+<!-- ======================MySql Database configuration============ -->
+	<jpa:repositories base-package="org.sdrc.missionmillet.odk.springdatajparepository"
+		entity-manager-factory-ref="odkEntityManagerFactory"
+		transaction-manager-ref="odkTransactionManager" />
+
+	<bean id="odkEntityManagerFactory" name="odkEntityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		p:dataSource-ref="odkDataSource">
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+				p:database="${jpa.database.odk}" p:showSql="${jpa.showSql}" />
+		</property>
+		<property name="jpaPropertyMap">
+			<map>
+				<entry key="hibernate.dialect" value="${hibernate.dialect.odk}" />
+				<entry key="hibernate.hbm2ddl.auto" value="${hibernate.hbm2ddl.auto.odk}" />
+				<entry key="hibernate.show_sql" value="${hibernate.show_sql.odk}" />
+			</map>
+		</property>
+		<property name="persistenceUnitName" value="odk" />
+		<property name="packagesToScan">
+			<list>
+				<value>org.sdrc.missionmillet.odk.domain</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="odkTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
+		p:entityManagerFactory-ref="odkEntityManagerFactory" />
+		
+	<bean id="odkDataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${jdbc.odk.driverClassName}" />
+		<property name="url" value="${jdbc.odk.url.mysql}" />
+		<property name="username" value="${jdbc.odk.username}" />
+		<property name="password" value="${jdbc.odk.password}" />
+	</bean>	
+<!-- 	=================================MySql Database configuration End================================= -->
+	<bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.MessageDigestPasswordEncoder">
+		<constructor-arg value="MD5" />
+	</bean> 
+
+		<mvc:interceptors>
+			<mvc:interceptor>
+				<mvc:mapping path="/*" />
+				<bean class="org.sdrc.missionmillet.core.AuthorizeInterceptor" />
+			</mvc:interceptor>
+			<bean id="webContentInterceptor"
+				class="org.springframework.web.servlet.mvc.WebContentInterceptor">
+				<property name="cacheSeconds" value="0" />
+				<property name="useExpiresHeader" value="true" />
+				<property name="useCacheControlHeader" value="true" />
+				<property name="useCacheControlNoStore" value="true" />
+			</bean>
+		</mvc:interceptors>
+	<!-- ========================= End Security-Context configuration ========================= -->
+	
+	<!-- - Message source for this context, loaded from localized "messages_xx" 
+		files. - Files are stored inside src/main/resources -->
+
+	<bean id="applicationMessageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource"
+		p:basename="spring/app" />
+	
+	<bean id="messageSourceNotification" class="org.springframework.context.support.ResourceBundleMessageSource"
+		p:basename="messages/messages" />
+		
+</beans>
