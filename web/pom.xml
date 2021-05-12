@@ -39,7 +39,7 @@
 		<spring-security-pac4j.version>1.2.3-SNAPSHOT</spring-security-pac4j.version>
 
 		<!-- spring security -->
-		<spring-security.version>3.2.0.RELEASE</spring-security.version>
+		<spring-security.version>5.2.10.RELEASE</spring-security.version>
 
 		<!-- Java EE / Java SE dependencies -->
 		<servlet-api.version>2.5</servlet-api.version>
