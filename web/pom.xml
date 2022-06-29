@@ -101,7 +101,7 @@
 		<pac4jVersion>1.5.1</pac4jVersion>
 
 		<!-- Apache POI -->
-		<poi.version>3.14</poi.version>
+		<poi.version>4.1.1</poi.version>
 
 		<!-- Apache commons Upload -->
 		<commons-fileupload.version>1.2.2</commons-fileupload.version>
